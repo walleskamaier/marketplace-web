@@ -28,7 +28,7 @@ export function AccountMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="justify-between text-accent-foreground">
-          <Link to={"/"} className="">
+          <Link to={"/sign-in"} className="">
             <span>Sair</span>
           </Link>
           <HugeiconsIcon

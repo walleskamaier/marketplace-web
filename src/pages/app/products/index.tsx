@@ -1,5 +1,5 @@
 import { ProductFilter } from "./product-filter";
-import { ProductItem } from "./product-item";
+import { ProductCard } from "../../../components/product-card";
 
 export function Products() {
   return (
@@ -16,12 +16,9 @@ export function Products() {
         </aside>
         <div className="items-start col-span-2">
           <div className="gap-4 grid grid-cols-2">
-            <ProductItem />
-            <ProductItem />
-            <ProductItem />
-            <ProductItem />
-            <ProductItem />
-            <ProductItem />
+            {Array.from({ length: 7 }).map((_, i) => {
+              return <ProductCard key={i} />;
+            })}
           </div>
         </div>
       </div>
