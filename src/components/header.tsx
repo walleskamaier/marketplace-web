@@ -7,40 +7,36 @@ import {
   ChartHistogramIcon,
   PackageFreeIcons,
 } from "@hugeicons/core-free-icons";
+import { Plus } from "lucide-react";
 
 export function Header() {
   return (
-    <div className="border-b">
-      <div className="flex h-16 items-center gap-6 px-6">
+    <div className="border-b border-shape">
+      <div className="flex h-20 items-center gap-6 px-6">
         <img className="w-14 mr-auto object-contain" src="/logo-icons.svg" />
 
         <nav className="flex items-center space-x-4 lg:space-x-6">
           <NavLink to="/">
             <HugeiconsIcon
-              className="h-5 w-5"
               icon={ChartHistogramIcon}
-              size={24}
-              color=""
+              size={20}
               strokeWidth={1}
             />
             Dashboard
           </NavLink>
           <NavLink to="/products">
-            <HugeiconsIcon
-              className="h-5 w-5"
-              icon={PackageFreeIcons}
-              size={24}
-              color=""
-              strokeWidth={1}
-            />
+            <HugeiconsIcon icon={PackageFreeIcons} size={20} strokeWidth={1} />
             Produtos
           </NavLink>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <Button asChild className="w-40" type="submit" variant={"default"}>
-            <Link to="/sign-up">Novo produto</Link>
-          </Button>
+        <div className="ml-auto flex items-center gap-4">
+          <Link to="/products/create">
+            <Button className="w-40" type="button" variant={"default"}>
+              <Plus className="w-4 h-4" />
+              <span className="action-sm">Novo produto</span>
+            </Button>
+          </Link>
           <AccountMenu />
         </div>
       </div>

@@ -49,10 +49,8 @@ export function SignIn() {
       <div className="w-[563px] px-20 flex flex-col gap-6 mb-auto">
         {/* Cabeçalho do login */}
         <div className="flex flex-col gap-2">
-          <h1 className="text-gray-500 text-title-md tracking-tight font-bold">
-            Acesse sua conta
-          </h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-gray-500 title-md">Acesse sua conta</h1>
+          <p className="text-gray-300 body-sm">
             Informe seu e-mail e senha para entrar
           </p>
         </div>
@@ -62,7 +60,7 @@ export function SignIn() {
           <div className="space-y-2">
             <div className="flex flex-col gap-5">
               <div className="">
-                <Label htmlFor="email">E-MAIL</Label>
+                <Label htmlFor="email">E-mail</Label>
                 <div className="text-gray-200 relative w-full">
                   <HugeiconsIcon
                     className="absolute top-1/2 left-3 -translate-y-1/2"
@@ -80,10 +78,10 @@ export function SignIn() {
                 </div>
               </div>
               <div className="">
-                <Label htmlFor="password">SENHA</Label>
-                <div className="relative w-full">
+                <Label htmlFor="password">Senha</Label>
+                <div className="text-gray-200 relative w-full">
                   <HugeiconsIcon
-                    className="text-gray-200 absolute top-1/2 left-3 -translate-y-1/2"
+                    className="absolute top-1/2 left-3 -translate-y-1/2"
                     icon={AccessIcon}
                     size={24}
                     strokeWidth={1}
@@ -100,12 +98,11 @@ export function SignIn() {
             </div>
             <Button
               disabled={isSubmitting}
-              className="mt-12 flex h-14 w-full justify-between"
+              className="mt-12 mb-20 flex h-14 w-full justify-between"
               type="submit"
             >
               <Link to="/">Acessar</Link>
               <HugeiconsIcon
-                className=""
                 icon={ArrowRight02Icon}
                 size={24}
                 strokeWidth={1}
@@ -124,7 +121,6 @@ export function SignIn() {
         >
           <Link to="/sign-up">Cadastrar</Link>
           <HugeiconsIcon
-            className=""
             icon={ArrowRight02Icon}
             size={24}
             strokeWidth={1}
@@ -134,5 +130,3 @@ export function SignIn() {
     </div>
   );
 }
-
-// Lembrar de colocar px-20 e ajustar py-18 (estender nas opções). Padding do formulário.

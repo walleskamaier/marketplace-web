@@ -1,5 +1,5 @@
 import { ProductFilter } from "./product-filter";
-import { ProductCard } from "../../../components/product-card";
+import { ProductCard } from "./product-card";
 
 export function Products() {
   return (

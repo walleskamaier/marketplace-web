@@ -8,11 +8,8 @@ export function NavLink(props: NavLinkProps) {
   return (
     <Link
       data-current={pathname === props.to}
-      className="text-muted-foreground hover:text-foreground data-[current=true]:text-foreground flex items-center gap-1.5 text-sm font-medium"
+      className="flex items-center action-sm gap-2 text-gray-300 hover:text-orange-base hover:bg-shape data-[current=true]:text-orange-base data-[current=true]:bg-shape px-4 py-3 rounded-[10px]"
       {...props}
     />
   );
 }
-
-// Lembrar de estilizar o "data-[current=true]:text-foreground"
-// Text-foreground precisa estar de acordo com Figma, (negrito, laranja, com box shadow)

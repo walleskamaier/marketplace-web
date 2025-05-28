@@ -15,28 +15,28 @@ export function AccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="flex items-center" variant={"ghost"}>
+        <Button className="flex items-center m-0 p-0" variant="link">
           <img className="" src="/profile.png" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuLabel className="flex gap-2">
+      <DropdownMenuContent align="end" className="w-40 border-none p-4 mt-2 ">
+        <DropdownMenuLabel className="flex items-center gap-2">
           <img className="w-8 object-contain" src="/profile.png" />
-          <span className="h-auto w-full text-muted-foreground">
+          <span className="h-auto w-full text-gray-300 body-sm">
             Walleska Maier
           </span>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="justify-between text-accent-foreground">
-          <Link to={"/sign-in"} className="">
+        <DropdownMenuSeparator className="bg-shape mx-2 my-4" />
+        <DropdownMenuItem className="justify-between text-orange-base action-sm">
+          <button className="w-full flex justify-between items-center hover:text-orange-dark cursor-pointer">
             <span>Sair</span>
-          </Link>
-          <HugeiconsIcon
-            className="h-4 w-4 text-accent-foreground"
-            icon={Logout01Icon}
-            size={24}
-            strokeWidth={1}
-          />
+            <HugeiconsIcon
+              className="text-orange-base hover:text-orange-dark"
+              icon={Logout01Icon}
+              size={20}
+              strokeWidth={1}
+            />
+          </button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
