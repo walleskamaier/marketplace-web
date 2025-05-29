@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -12,38 +12,51 @@ import {
   ArrowRight02Icon,
   Mail02Icon,
 } from "@hugeicons/core-free-icons";
+import { useMutation } from "@tanstack/react-query";
+import { signIn } from "../../api/sign-in";
+import { AxiosError } from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const signInForm = z.object({
   email: z.string().email(),
-  password: z
-    .string()
-    .min(6, { message: "Senha deve ter no mínimo 6 caracteres" }),
+  password: z.string().min(6),
 });
 
 type SignInForm = z.infer<typeof signInForm>;
 
 export function SignIn() {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<SignInForm>();
+  } = useForm<SignInForm>({
+    resolver: zodResolver(signInForm),
+  });
+
+  const { mutateAsync: authenticate } = useMutation({
+    mutationFn: signIn,
+  });
 
   async function handleSignIn(data: SignInForm) {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const { accessToken } = await authenticate(data);
 
-      toast.success("Enviamos um link de autenticação para o seu e-mail", {
-        action: {
-          label: "Reenviar",
-          onClick: () => handleSignIn(data),
-        },
-      });
-    } catch {
-      toast.error("Credenciais inválidas");
+      toast.success("Usuário autenticado com sucesso!");
+      localStorage.setItem("@rocketseat-marketplace/accessToken", accessToken);
+      navigate("/");
+    } catch (error) {
+      if (error instanceof AxiosError && error.status === 403) {
+        toast.error("Email e/ou senha inválidos.");
+      } else {
+        toast.error(
+          "Ocorreu um erro ao tentar autenticar. Contate a nossa equipe de suporte.",
+        );
+        console.error(error);
+      }
     }
   }
-
   return (
     <div className="justify-between flex flex-col items-center h-full p-10">
       <div className="w-[563px] px-20 flex flex-col gap-6 mb-auto">
@@ -120,11 +133,7 @@ export function SignIn() {
           variant={"secondary"}
         >
           <Link to="/sign-up">Cadastrar</Link>
-          <HugeiconsIcon
-            icon={ArrowRight02Icon}
-            size={24}
-            strokeWidth={1}
-          />
+          <HugeiconsIcon icon={ArrowRight02Icon} size={24} strokeWidth={1} />
         </Button>
       </div>
     </div>
