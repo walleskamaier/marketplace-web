@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
+import { registerSeller } from "../../api/register-seller";
 
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -14,14 +15,13 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, ImageUp } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 
 const signUpForm = z.object({
   name: z.string(),
   phone: z.string(),
   email: z.string().email(),
-  password: z
-    .string()
-    .min(6, { message: "Senha deve ter no mínimo 6 caracteres" }),
+  password: z.string().min(6),
   passwordConfirmation: z.string().min(6),
 });
 
@@ -36,14 +36,24 @@ export function SignUp() {
     formState: { isSubmitting },
   } = useForm<SignUpForm>();
 
+  const { mutateAsync: registerNewSeller } = useMutation({
+    mutationFn: registerSeller,
+  });
+
   async function handleSignUp(data: SignUpForm) {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await registerNewSeller({
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        password: data.password,
+        passwordConfirmation: data.passwordConfirmation,
+      });
 
       toast.success("Conta criada com sucesso!", {
         action: {
           label: "Login",
-          onClick: () => navigate("/sign-in"),
+          onClick: () => navigate(`/sign-in?email=${data.email}`),
         },
       });
     } catch {
@@ -67,6 +77,8 @@ export function SignUp() {
           {/* Foto de perfil */}
           <div className="flex flex-col">
             <h2 className="title-sm text-gray-500 mb-5">Perfil</h2>
+
+            {/* Lembrar de inserir controller pra foto/avatar */}
             <Label
               htmlFor="avatar"
               className="z-0 group w-[120px] h-[120px] rounded-[20px] bg-center bg-cover hover:cursor-pointer transition-all relative"

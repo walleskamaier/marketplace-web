@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Link, useNavigate } from "react-router-dom";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -14,8 +14,6 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useMutation } from "@tanstack/react-query";
 import { signIn } from "../../api/sign-in";
-import { AxiosError } from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const signInForm = z.object({
   email: z.string().email(),
@@ -25,6 +23,8 @@ const signInForm = z.object({
 type SignInForm = z.infer<typeof signInForm>;
 
 export function SignIn() {
+  const [searchParams] = useSearchParams()
+
   const navigate = useNavigate();
 
   const {
@@ -32,6 +32,9 @@ export function SignIn() {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm<SignInForm>({
+    defaultValues: {
+      email: searchParams.get("email") ?? "",
+    },
     resolver: zodResolver(signInForm),
   });
 
@@ -40,6 +43,8 @@ export function SignIn() {
   });
 
   async function handleSignIn(data: SignInForm) {
+    console.log("Dados enviados para login:", data);
+
     try {
       const { accessToken } = await authenticate(data);
 
@@ -47,16 +52,11 @@ export function SignIn() {
       localStorage.setItem("@rocketseat-marketplace/accessToken", accessToken);
       navigate("/");
     } catch (error) {
-      if (error instanceof AxiosError && error.status === 403) {
-        toast.error("Email e/ou senha inválidos.");
-      } else {
-        toast.error(
-          "Ocorreu um erro ao tentar autenticar. Contate a nossa equipe de suporte.",
-        );
-        console.error(error);
-      }
+      console.error(error);
+      toast.error("Credenciais inválidas.");
     }
   }
+
   return (
     <div className="justify-between flex flex-col items-center h-full p-10">
       <div className="w-[563px] px-20 flex flex-col gap-6 mb-auto">
@@ -72,7 +72,7 @@ export function SignIn() {
         <form onSubmit={handleSubmit(handleSignIn)} className="space-y-4">
           <div className="space-y-2">
             <div className="flex flex-col gap-5">
-              <div className="">
+              <div>
                 <Label htmlFor="email">E-mail</Label>
                 <div className="text-gray-200 relative w-full">
                   <HugeiconsIcon
@@ -114,7 +114,7 @@ export function SignIn() {
               className="mt-12 mb-20 flex h-14 w-full justify-between"
               type="submit"
             >
-              <Link to="/">Acessar</Link>
+              Acessar
               <HugeiconsIcon
                 icon={ArrowRight02Icon}
                 size={24}
