@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import { registerSeller } from "../../api/register-seller";
@@ -16,16 +16,41 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, ImageUp } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-const signUpForm = z.object({
-  name: z.string(),
-  phone: z.string(),
-  email: z.string().email(),
-  password: z.string().min(6),
-  passwordConfirmation: z.string().min(6),
-});
+const MAX_FILE_SIZE = 5000000;
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
 
-type SignUpForm = z.infer<typeof signUpForm>;
+const SignUpForm = z
+  .object({
+    avatar: z
+      .custom<FileList>()
+      .refine((files) => files?.length, "A foto de perfil é obrigatória.")
+      .refine(
+        (files) => files && files[0]?.size <= MAX_FILE_SIZE,
+        `O tamanho máximo da imagem é de 5MB.`,
+      )
+      .refine(
+        (files) => files && ACCEPTED_IMAGE_TYPES.includes(files[0]?.type),
+        "Apenas os formatos .jpg, .jpeg, .png e .webp são suportados.",
+      ),
+    name: z.string().min(1, "O nome é obrigatório."),
+    phone: z.string().min(10, "O telefone é obrigatório."),
+    email: z.string().email(),
+    password: z.string().min(6),
+    passwordConfirmation: z.string().min(6),
+  })
+  .refine((schema) => schema.password === schema.passwordConfirmation, {
+    message: "As senhas não são iguais!",
+    path: ["passwordConfirmation"],
+  });
+
+type SignUpForm = z.infer<typeof SignUpForm>;
 
 export function SignUp() {
   const navigate = useNavigate();
@@ -33,34 +58,50 @@ export function SignUp() {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
-  } = useForm<SignUpForm>();
+    control,
+    formState: { isSubmitting: isRegistering },
+  } = useForm<SignUpForm>({
+    resolver: zodResolver(SignUpForm),
+  });
 
   const { mutateAsync: registerNewSeller } = useMutation({
     mutationFn: registerSeller,
   });
 
-  async function handleSignUp(data: SignUpForm) {
+  async function handleSignUp({
+    avatar,
+    email,
+    name,
+    phone,
+    password,
+    passwordConfirmation,
+  }: SignUpForm) {
     try {
-      await registerNewSeller({
-        name: data.name,
-        phone: data.phone,
-        email: data.email,
-        password: data.password,
-        passwordConfirmation: data.passwordConfirmation,
-      });
+      const avatarFile = avatar[0];
 
-      toast.success("Conta criada com sucesso!", {
+      const files = new FormData();
+      files.append("files", avatarFile);
+
+      const data = await registerNewSeller({
+        files,
+        name,
+        phone,
+        email,
+        password,
+        passwordConfirmation,
+      });
+      console.log(data);
+      toast.success("Cadastro realizado com sucesso", {
         action: {
           label: "Login",
-          onClick: () => navigate(`/sign-in?email=${data.email}`),
+          onClick: () => navigate("/login"),
         },
       });
-    } catch {
-      toast.error("Erro ao cadastrar conta.");
+    } catch (error) {
+      toast.error("Ocorreu um erro durante o cadastro. Tente novamente");
+      console.error(error);
     }
   }
-
   return (
     <div className="justify-between flex flex-col items-center h-full">
       <div className="w-[563px] px-20 flex flex-col gap-6">
@@ -78,19 +119,42 @@ export function SignUp() {
           <div className="flex flex-col">
             <h2 className="title-sm text-gray-500 mb-5">Perfil</h2>
 
-            {/* Lembrar de inserir controller pra foto/avatar */}
-            <Label
-              htmlFor="avatar"
-              className="z-0 group w-[120px] h-[120px] rounded-[20px] bg-center bg-cover hover:cursor-pointer transition-all relative"
-            >
-              <div className="-z-10 absolute flex flex-col items-center justify-center w-full h-full bg-shape text-gray-300 rounded-[20px]">
-                <ImageUp
-                  className="h-8 w-8 text-orange-base"
-                  strokeWidth={1.5}
-                />
-              </div>
-              <Input type="file" id="avatar" name="" className="hidden" />
-            </Label>
+            <Controller
+              name="avatar"
+              control={control}
+              render={({ field: { name, onChange, value } }) => {
+                return (
+                  <Label
+                    htmlFor="avatar"
+                    style={{
+                      backgroundImage: `url(${value && value[0] ? URL.createObjectURL(value[0]) : ""})`,
+                    }}
+                    className="z-0 w-[120px] h-[120px] relative bg-center bg-cover hover:cursor-pointer transition-all"
+                  >
+                    {!value && (
+                      <div className="bg-shape -z-10 absolute w-full h-full rounded-[20px] flex items-center justify-center text-gray-300">
+                        <ImageUp
+                          className="h-8 w-8 text-orange-base"
+                          strokeWidth={1.5}
+                        />
+                      </div>
+                    )}
+
+                    <div className="z-10 flex flex-col items-center justify-center w-full h-full bg-transparent text-transparent rounded-[20px] group-hover:bg-black group-hover:bg-opacity-30 group-hover:text-white">
+                      <ImageUp className="h-8 w-8" strokeWidth={1.5} />
+                    </div>
+
+                    <Input
+                      type="file"
+                      id="avatar"
+                      name={name}
+                      className="hidden"
+                      onChange={(e) => onChange(e.target.files)}
+                    />
+                  </Label>
+                );
+              }}
+            />
 
             {/* Nome */}
             <Label htmlFor="name" className="mt-5">
@@ -196,7 +260,7 @@ export function SignUp() {
               </div>
             </div>
             <Button
-              disabled={isSubmitting}
+              disabled={isRegistering}
               className="w-full h-14 flex justify-between mb-20"
               type="submit"
             >
