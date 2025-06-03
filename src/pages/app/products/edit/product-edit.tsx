@@ -11,9 +11,20 @@ import {
 import { Button } from "../../../../components/ui/button";
 import { Textarea } from "../../../../components/ui/textarea";
 import { useNavigate } from "react-router-dom";
+import { TagStatus } from "../tag-status";
+import { GetCategoriesResponse } from "../../../../api/get-categories"
+import { useQueryClient } from "@tanstack/react-query";
 
-export function ProductEditForm() {
+interface ProductEditFormProps {
+  // product: GetProductResponse["product"];
+  categories: GetCategoriesResponse["categories"];
+}
+
+export function ProductEditForm({ categories }: ProductEditFormProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient()
+
+  
 
   return (
     <form className="flex gap-6">
@@ -36,9 +47,7 @@ export function ProductEditForm() {
       <div className="bg-white p-6 rounded-[20px] flex-1">
         <div className="flex items-center mb-6 justify-between">
           <h3 className="text-gray-300 title-sm">Dados do produto</h3>
-          <span className="label-sm bg-blue-dark rounded-full px-2 py-1 text-white w-fit">
-            Anunciado
-          </span>
+          <TagStatus status={product} />
         </div>
 
         <div className="">

@@ -1,6 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
 import { ProductCreateForm } from "./product-create";
+import { getCategories } from "../../../../api/get-categories";
+
+
 
 export function ProductCreatePage() {
+  const { data: categoryData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  })
+
   return (
     <>
       <div className="w-full max-w-[1100px] mx-auto">

@@ -11,9 +11,55 @@ import {
 import { Button } from "../../../../components/ui/button";
 import { Textarea } from "../../../../components/ui/textarea";
 import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export function ProductCreateForm() {
+const MAX_FILE_SIZE = 5000000;
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+
+const productCreateForm = z.object({
+  productImage: z
+    .custom<FileList>()
+    .refine((files) => files && files?.length, "Image is mandatory.")
+    .refine(
+      (files) => !files || files[0]?.size <= MAX_FILE_SIZE,
+      `Max image size is 5MB.`,
+    )
+    .refine(
+      (files) => !files || ACCEPTED_IMAGE_TYPES.includes(files[0]?.type),
+      "Only .jpg, .jpeg, .png and .webp formats are supported.",
+    ),
+  title: z.string().min(1),
+  price: z.string().min(1),
+  description: z.string().min(1),
+  categoryId: z.string(),
+});
+
+type ProductCreateForm = z.infer<typeof productCreateForm>;
+
+interface ProductCreateFormProps {
+  categories: GetCategoriesResponse["categories"];
+}
+
+export function ProductCreateForm({ categories }: ProductCreateFormProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting: isLoadingProductCreate },
+  } = useForm<ProductCreateForm>({
+    resolver: zodResolver(productCreateForm),
+  });
 
   return (
     <form className="flex gap-6">
